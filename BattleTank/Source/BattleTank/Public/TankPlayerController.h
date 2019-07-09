@@ -19,9 +19,22 @@ public:
 	void BeginPlay() override;
 	void Tick(float DeltaTime) override;
 
-	ATank* GetControlledTank() const;
-
 private:
-	void AimTowardCrosshair();
+	ATank* GetControlledTank() const;	
 
+	void AimTowardCrosshair();
+	//return OUT parameter, true if hit location.
+	bool GetSightRayLocation(FVector& OutHitLocation) const;
+
+	UPROPERTY(EditAnywhere)
+	float CrossHairXLocation = 0.5; 
+
+	UPROPERTY(EditAnywhere)
+	float CrossHairYLocation = 0.3333;
+
+	UPROPERTY(EditAnywhere)
+	float LineTraceEnd = 1000000;
+
+	bool GetLookDirection(FVector2D ScreenLocation, FVector& WorldDirection) const;
+	bool GetLookVectorHitLocation(FVector LookDirection, FVector& HitLocation) const;
 };
