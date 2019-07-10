@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
+#include "Tank.h"
 #include "Gameframework/Actor.h"
 #include "Engine/World.h"
 #include "TankPlayerController.h"
@@ -45,15 +46,25 @@ void ATankPlayerController::AimTowardCrosshair()
 bool ATankPlayerController::GetSightRayLocation(FVector& OutHitLocation) const
 {
 	FVector LookDirection;
-	int32 ViewportSizeX, ViewportSizeY;	
+	int32 ViewportSizeX, ViewportSizeY;
+
 	GetViewportSize(ViewportSizeX, ViewportSizeY);
 	auto ScreenLocation = FVector2D(ViewportSizeX * CrossHairXLocation, ViewportSizeY * CrossHairYLocation);
+
 	if (GetLookDirection(ScreenLocation, LookDirection)) {
-
-		GetLookVectorHitLocation(LookDirection, OutHitLocation);
-
+		 GetLookVectorHitLocation(LookDirection, OutHitLocation);
 	}
 	return true;
+}
+
+bool ATankPlayerController::GetLookDirection(FVector2D ScreenLocation, FVector& LookDirection) const
+{
+	FVector WorldLocation; //to be discarded	
+	return DeprojectScreenPositionToWorld(ScreenLocation.X,
+		ScreenLocation.Y,
+		WorldLocation,
+		LookDirection
+	);
 }
 
 bool ATankPlayerController::GetLookVectorHitLocation(FVector LookDirection, FVector& HitLocation) const
@@ -75,12 +86,4 @@ bool ATankPlayerController::GetLookVectorHitLocation(FVector LookDirection, FVec
 	return false;
 }
 
-bool ATankPlayerController::GetLookDirection(FVector2D ScreenLocation, FVector& LookDirection) const
-{
-	FVector WorldLocation; //to be discarded	
-	return DeprojectScreenPositionToWorld(ScreenLocation.X, 
-		ScreenLocation.Y, 
-		WorldLocation, 
-		LookDirection
-	);
-}
+
