@@ -24,13 +24,13 @@ private:
 	//return OUT parameter, true if hit location.
 	bool GetSightRayLocation(FVector& OutHitLocation) const;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditDefaultsOnly)
 	float CrossHairXLocation = 0.5; 
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditDefaultsOnly)
 	float CrossHairYLocation = 0.3333;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditDefaultsOnly)
 	float LineTraceEnd = 1000000;
 
 	bool GetLookDirection(FVector2D ScreenLocation, FVector& WorldDirection) const;
