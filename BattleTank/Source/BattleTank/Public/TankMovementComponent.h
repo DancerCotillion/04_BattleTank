@@ -20,12 +20,15 @@ public:
 	void Initialise(UTankTrack * LeftTrackToSet, UTankTrack * RightTrackToSet);
 
 	UFUNCTION(BlueprintCallable, Category=Input)
-	void IntendMoveForwad(float Throw);
+	void IntendMoveForward(float Throw);
 
 	UFUNCTION(BlueprintCallable, Category = Input)
 	void IntendTurnRight(float Throw);
 
 private:
+	// call from pathfinding logic by AI controllers
+	virtual void RequestDirectMove(const FVector& MoveVelocity, bool bForceMaxSpeed) override;
+
 	UTankTrack* LeftTrack = nullptr;
 	UTankTrack* RightTrack = nullptr; 	
 };
