@@ -1,55 +1,46 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "Tank.h"
 #include "Engine/World.h"
+#include "TankAimingComponent.h"
 #include "TankAIController.h"
 
 void ATankAIController::BeginPlay()
 {
 	Super::BeginPlay();
-
-	//ATank* ControlledTank = GetControlledTank();
-	//	if (!ControlledTank) {
-	//		UE_LOG(LogTemp, Warning, TEXT("No Controlled Tank"));
-	//	}
-	//	else {
-	//		UE_LOG(LogTemp, Warning, TEXT("AI Controlled Tank: %s"), *ControlledTank->GetName());
-	//	}
-	//
 }
 
 void ATankAIController::Tick(float DeltaTime) {
 
 	Super::Tick(DeltaTime);
 
-	auto ControlledTank = Cast<ATank>(GetPawn());
-	auto PlayerTank = Cast<ATank>(GetWorld()->GetFirstPlayerController()->GetPawn());
+	auto ControlledTank = GetPawn();
+	auto PlayerTank = GetWorld()->GetFirstPlayerController()->GetPawn();
 
-	if (PlayerTank) {
+	if (!ensure(PlayerTank) && ControlledTank) { return; }
 
-		MoveToActor(PlayerTank, AcceptanceRadius);
+	MoveToActor(PlayerTank, AcceptanceRadius);
 
-		ControlledTank->AimAt(PlayerTank->GetActorLocation());
+	auto AimingComponent = ControlledTank->FindComponentByClass<UTankAimingComponent>();
+	AimingComponent->AimAt(PlayerTank->GetActorLocation());
 
-		ControlledTank->Fire();
-	}
-
-
+	AimingComponent->Fire();
+}
+	
 	/*if (GetPlayerTank()) {
 		GetControlledTank()->AimAt(GetPlayerTank()->GetActorLocation());
 	}*/
-}
 
-//ATank* ATankAIController::GetControlledTank() const
-//{
-//	return Cast<ATank>(GetPawn());
-//
-//}
-//ATank* ATankAIController::GetPlayerTank() const
-//{
-//	auto PlayerPawn = GetWorld()->GetFirstPlayerController()->GetPawn();
-//	if (!PlayerPawn) { return nullptr; }
-//	else {
-//		return Cast<ATank>(PlayerPawn);
-//	}
-//}
+
+/*ATank* ATankAIController::GetControlledTank() const
+{
+	return Cast<ATank>(GetPawn());
+
+}
+ATank* ATankAIController::GetPlayerTank() const
+{
+	auto PlayerPawn = GetWorld()->GetFirstPlayerController()->GetPawn();
+	if (!PlayerPawn) { return nullptr; }
+	else {
+		return Cast<ATank>(PlayerPawn);
+	}
+}*/
