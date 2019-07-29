@@ -13,7 +13,25 @@ UTankAimingComponent::UTankAimingComponent()
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = false;
+	PrimaryComponentTick.bCanEverTick = true;
+}
+
+void UTankAimingComponent::BeginPlay()
+{
+	LastFireTime = FPlatformTime::Seconds();
+}
+
+void UTankAimingComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction)
+{
+	if ((FPlatformTime::Seconds() - LastFireTime) < ReloadTimeInSeconds) {
+		FiringState = EFiringStatus::Reloading;
+	}
+	else if (IsBarrelMoving()){
+		FiringState = EFiringStatus::Aiming;
+	}
+	else{
+		FiringState = EFiringStatus::Locked;
+	}
 }
 
 void UTankAimingComponent::Initialise(UTankBarrel * BarrelToSet, UTankTurret * TurretToSet)
@@ -44,9 +62,9 @@ void UTankAimingComponent::AimAt(FVector HitLocation)
 		ESuggestProjVelocityTraceOption::DoNotTrace
 	);
 
-	if (bHaveAimSolution && HitLocation!=FVector(0))
+	if (bHaveAimSolution && HitLocation != FVector(0))
 	{
-		auto AimDirection = OutLaunchVelocity.GetSafeNormal();
+		AimDirection = OutLaunchVelocity.GetSafeNormal();
 		MoveBarrelTowards(AimDirection);
 	}
 	//else {
@@ -54,6 +72,12 @@ void UTankAimingComponent::AimAt(FVector HitLocation)
 	//	//auto Time = GetWorld()->GetTimeSeconds();
 	//	//UE_LOG(LogTemp, Warning, TEXT("%f: Aim Solution Not Found"), Time)
 	//}
+}
+
+bool UTankAimingComponent::IsBarrelMoving()
+{
+	auto BarrelForward = Barrel->GetForwardVector();
+	return !BarrelForward.Equals(AimDirection, 0.01);
 }
 
 void UTankAimingComponent::MoveBarrelTowards(FVector AimDirection)
@@ -70,9 +94,7 @@ void UTankAimingComponent::MoveBarrelTowards(FVector AimDirection)
 
 void UTankAimingComponent::Fire()
 {
-	bool isReloaded = (FPlatformTime::Seconds() - LastFireTime) > ReloadTimeInSeconds;
-
-	if (Barrel && isReloaded)
+	if (FiringState != EFiringStatus::Reloading)
 	{
 		auto SpawnLocation = Barrel->GetSocketLocation(FName("Projectile"));
 		auto SpawnRotation = Barrel->GetSocketRotation(FName("Projectile"));
